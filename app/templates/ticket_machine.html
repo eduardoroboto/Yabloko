@@ -1,11 +1,71 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Ticket Machine</title>
+{%extends "base.html" %}
 
-</head>
-<body>
+{% block title %} Ticket Machine {% endblock %}
+
+{% block content%}
 <h1>Ticket Machine</h1>
-</body>
-</html>
+<h2 class="current_position">1<h2>
+{% for assunto in assuntos %}
+<input type="button" value="{{assunto}}" class="button"><br>
+{% endfor %}
+<h2 class="position"></h2>
+<h3 class="assunto"></h3>
+<h3 class="id"></h3>
+{% endblock %}
+
+
+{% block script %}
+
+<script>
+
+    buttons = document.querySelectorAll(".button");
+    buttons.forEach(button => button.addEventListener("click",post_add_ticket(button.value)));
+
+    function post_add_ticket(text){
+    return function(){axios.post('/ticket/adicionar',{
+        position: get_position(),
+        subject: text
+    }).then(async function (response){
+        let h2 = document.querySelector('.position')
+        let h3 = document.querySelector('.assunto')
+        let h3_id = document.querySelector('.id')
+
+        h2.textContent = response.data['position']
+        h3.textContent = response.data['subject']
+        h3_id.textContent = response.data['id']
+
+        await sleep(3000)
+
+        h2.textContent = ''
+        h3.textContent = ''
+        h3_id.textContent =''
+        update_position()
+
+
+    }).catch(function (error){
+        alert(error)
+    });
+    }
+
+    };
+
+    function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+    function get_position() {
+        current_position = document.querySelector(".current_position");
+        let position = current_position.textContent
+        return position
+    };
+
+    function update_position() {
+        current_position = document.querySelector(".current_position");
+        let position = current_position.textContent
+        position++
+        current_position.textContent=position
+    };
+
+  // buttons.forEach(button => button.addEventListener("click", alert(button.valeu)));
+</script>
+
+{% endblock %}

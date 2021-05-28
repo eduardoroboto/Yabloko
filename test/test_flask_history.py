@@ -2,78 +2,124 @@ from test.test_flask import TestFlaskBase
 from flask import url_for
 
 
-class TestTicketAdicionar(TestFlaskBase):
+class TestHistoryAdicionar(TestFlaskBase):
     def test_adicionar_deve_retornar_o_payload_igual_ao_enviado(self):
         ticket_data = {'position': 1, 'subject': 'devolucao'}
+        clerk_data = {'position': 1, 'name': 'eduardo', 'subjects': 'devolucao;preco_trocado'}
 
-        response = self.client.post(url_for('tickets.adicionar'),json=ticket_data)
+        self.client.post(url_for('tickets.adicionar'), json=ticket_data)
+        self.client.post(url_for('clerks.adicionar'), json=clerk_data)
 
+        history_data = {'ticket_id': 1, 'clerk_id': 1}
+
+        response = self.client.post(url_for('history.adicionar'),json=history_data)
+        #print("Response =>",response.json)
         self.assertEqual(1, response.json['id'])
-        self.assertEqual(ticket_data['position'], response.json['position'])
-        self.assertEqual(ticket_data['subject'], response.json['subject'])
+        self.assertEqual(history_data['ticket_id'], response.json['ticket_id'])
+        self.assertEqual(history_data['clerk_id'], response.json['clerk_id'])
+
 
 
     def test_adicionar_deve_retornar_erro_quando_o_payload_for_incompleto(self):
-        ticket_data = {'subject': 'devolucao'}
-        response = self.client.post(url_for('tickets.adicionar'), json=ticket_data)
+        ticket_data = {'position': 1, 'subject': 'devolucao'}
+        clerk_data = {'position': 1, 'name': 'eduardo', 'subjects': 'devolucao;preco_trocado'}
 
-        return_data = {'position': ['Missing data for required field.']}
+        self.client.post(url_for('tickets.adicionar'), json=ticket_data)
+        self.client.post(url_for('clerks.adicionar'), json=clerk_data)
+
+        history_data = {'ticket_id': 1}
+
+        response = self.client.post(url_for('history.adicionar'),json=history_data)
+
+        return_data = {'clerk_id': ['Missing data for required field.']}
 
 
         self.assertEqual(return_data, response.json)
 
 
     def test_adicionar_deve_retornar_erro_quando_o_payload_tiver_id(self):
-        ticket_data = {'id':1,'position': 1, 'subject': 'devolucao'}
-        response = self.client.post(url_for('tickets.adicionar'), json=ticket_data)
+        ticket_data = {'position': 1, 'subject': 'devolucao'}
+        clerk_data = {'position': 1, 'name': 'eduardo', 'subjects': 'devolucao;preco_trocado'}
+
+        self.client.post(url_for('tickets.adicionar'), json=ticket_data)
+        self.client.post(url_for('clerks.adicionar'), json=clerk_data)
+
+        history_data = {'id':1,'ticket_id': 1, 'clerk_id': 1}
+
+        response = self.client.post(url_for('history.adicionar'), json=history_data)
 
         return_data = {'id': ['Nao envie o id!']}
 
         self.assertEqual(return_data, response.json)
 
-class TestTicketMostrar(TestFlaskBase):
+class TestHistoryMostrar(TestFlaskBase):
     def test_mostrar_deve_retornar_uma_query_vazia(self):
-        response = self.client.get(url_for('tickets.mostrar'))
+        response = self.client.get(url_for('history.mostrar'))
 
         self.assertEqual([],response.json)
 
     def test_mostrar_deve_retornar_um_query_com_elemento_inserido(self):
-        ticket_data = {'position': 1, 'subject': 'devolucao'}
+        ticket_data_one = {'position': 1, 'subject': 'devolucao'}
+        ticket_data_two = {'position': 2, 'subject': 'preco_trocado'}
+        self.client.post(url_for('tickets.adicionar'), json=ticket_data_one)
+        self.client.post(url_for('tickets.adicionar'), json=ticket_data_two)
 
-        self.client.post(url_for('tickets.adicionar'), json=ticket_data)
-        self.client.post(url_for('tickets.adicionar'), json=ticket_data)
+        clerk_data = {'position': 1, 'name': 'eduardo', 'subjects': 'devolucao;preco_trocado'}
+        self.client.post(url_for('clerks.adicionar'), json=clerk_data)
 
-        response = self.client.get(url_for('tickets.mostrar'))
+        history_data_one = {'ticket_id': 1, 'clerk_id': 1}
+        history_data_two = {'ticket_id': 2, 'clerk_id': 1}
+        self.client.post(url_for('history.adicionar'), json=history_data_one)
+        self.client.post(url_for('history.adicionar'), json=history_data_two)
+
+        response = self.client.get(url_for('history.mostrar'))
 
         self.assertEqual(2,len(response.json))
 
-class TestTicketDeletar(TestFlaskBase):
-    # def test_deletar_deve_retornar_deletado_quando_nao_encontrar_registro(self):
-    #     response = self.client.get(url_for('tickets.deletar',identificador=1))
-    #
-    #     self.assertEqual(response.json, f"Ticket de id=1 deletado!!")
+class TestHistoryDeletar(TestFlaskBase):
+    #def test_deletar_deve_retornar_deletado_quando_nao_encontrar_registro(self):
+
+        # ticket_data_one = {'position': 1, 'subject': 'devolucao'}
+        # ticket_data_two = {'position': 2, 'subject': 'preco_trocado'}
+        # self.client.post(url_for('tickets.adicionar'), json=ticket_data_one)
+        # self.client.post(url_for('tickets.adicionar'), json=ticket_data_two)
+        #
+        #
+        # response = self.client.get(url_for('History.deletar',identificador=1))
+        #
+        # self.assertEqual(response.json, f"History de id=1 deletado!!")
 
     def test_deletar_deve_retornar_deletado_quando_encontrar_registro_na_base(self):
         ticket_data = {'position': 1, 'subject': 'devolucao'}
+        clerk_data = {'position': 1, 'name': 'eduardo', 'subjects': 'devolucao;preco_trocado'}
 
         self.client.post(url_for('tickets.adicionar'), json=ticket_data)
+        self.client.post(url_for('clerks.adicionar'), json=clerk_data)
 
-        response = self.client.get(url_for('tickets.deletar', identificador=1))
+        history_data = {'ticket_id': 1, 'clerk_id': 1}
+        self.client.post(url_for('history.adicionar'), json=history_data)
 
-        self.assertEqual(response.json, f"Ticket de id=1 deletado!!")
+        response = self.client.get(url_for('history.deletar', identificador=1))
+
+        self.assertEqual(response.json, f"History de id=1 deletado!!")
 
 
-class TestTicketModificar(TestFlaskBase):
+class TestHistoryModificar(TestFlaskBase):
     def test_modificar_(self):
-        ticket_inicial = {'position': 1, 'subject': 'devolucao'}
-        ticket_final = {'id':1,'position': 1, 'subject': 'preco_errado'}
 
+        clerk_data_one = {'position': 1, 'name': 'eduardo', 'subjects': 'devolucao;preco_trocado'}
+        clerk_data_two = {'position': 1, 'name': 'lucas', 'subjects': 'devolucao'}
+        self.client.post(url_for('clerks.adicionar'), json=clerk_data_one)
+        self.client.post(url_for('clerks.adicionar'), json=clerk_data_two)
 
-        self.client.post(url_for('tickets.adicionar'), json=ticket_inicial)
+        history_original = {'ticket_id': 1, 'clerk_id': 1}
+        history_after = {'id':1,'ticket_id': 1, 'clerk_id': 2}
+        self.client.post(url_for('history.adicionar'), json=history_original)
 
-        response = self.client.post(url_for('tickets.modificar',identificador=1,),json=ticket_final)
+        response = self.client.post(url_for('history.modificar',identificador=1,),json=history_after)
 
-        self.assertEqual(ticket_final['id'], response.json['id'])
-        self.assertEqual(ticket_final['position'], response.json['position'])
-        self.assertEqual(ticket_final['subject'], response.json['subject'])
+        self.assertEqual(history_after['id'], response.json['id'])
+        self.assertEqual(history_after['ticket_id'], response.json['ticket_id'])
+        self.assertEqual(history_after['clerk_id'], response.json['clerk_id'])
+
 

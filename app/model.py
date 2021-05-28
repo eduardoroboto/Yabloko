@@ -11,15 +11,17 @@ class Ticket(db.Model):
   id = db.Column(db.Integer, primary_key=True)
   position = db.Column(db.Integer,nullable=False)
   subject = db.Column(db.String(200),nullable=False)
-  date_created = db.Column(db.DateTime, default=datetime.now)
+  date_created = db.Column(db.DateTime, default=datetime.now())
   date_called = db.Column(db.DateTime, default=None)
   date_end = db.Column(db.DateTime, default=None)
+  
 
 class Clerk(db.Model):
   id = db.Column(db.Integer, primary_key=True)
   position = db.Column(db.Integer, nullable=False)
   name = db.Column(db.String(200),nullable=False)
   subjects = db.Column(db.String(200),nullable=False)
+  password =db.Column(db.String(200),nullable=True)
 
 class History(db.Model):
   id = db.Column(db.Integer, primary_key=True)

@@ -1,3 +1,4 @@
+from time import sleep
 from test.test_flask import TestFlaskBase
 from flask import url_for
 
@@ -7,7 +8,7 @@ class TestTicketAdicionar(TestFlaskBase):
         ticket_data = {'position': 1, 'subject': 'devolucao'}
 
         response = self.client.post(url_for('tickets.adicionar'),json=ticket_data)
-
+        print(response.json)
         self.assertEqual(1, response.json['id'])
         self.assertEqual(ticket_data['position'], response.json['position'])
         self.assertEqual(ticket_data['subject'], response.json['subject'])
@@ -77,3 +78,27 @@ class TestTicketModificar(TestFlaskBase):
         self.assertEqual(ticket_final['position'], response.json['position'])
         self.assertEqual(ticket_final['subject'], response.json['subject'])
 
+class TestTicketChangeDates(TestFlaskBase):
+    def test_modificar_start(self):
+        ticket = {'position': 1, 'subject': 'devolucao'}
+        self.client.post(url_for('tickets.adicionar'), json=ticket)
+
+        sleep(2)
+        response = self.client.post(url_for('tickets.add_date_called',identificador=1,))
+
+        self.assertEqual(1, response.json['id'])
+        self.assertEqual(ticket['position'], response.json['position'])
+        self.assertEqual(ticket['subject'], response.json['subject'])
+        self.assertNotEqual(None,response.json['date_called'])
+
+    def test_modificar_end(self):
+        ticket = {'position': 1, 'subject': 'devolucao'}
+        self.client.post(url_for('tickets.adicionar'), json=ticket)
+
+        sleep(2)
+        response = self.client.post(url_for('tickets.add_date_end',identificador=1,))
+
+        self.assertEqual(1, response.json['id'])
+        self.assertEqual(ticket['position'], response.json['position'])
+        self.assertEqual(ticket['subject'], response.json['subject'])
+        self.assertNotEqual(None,response.json['date_end'])

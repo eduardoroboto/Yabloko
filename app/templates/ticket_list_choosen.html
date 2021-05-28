@@ -1,10 +1,5 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% for ticket in tickets  %}
+{% if ticket.date_end == None %}
+<li>N°{{ticket.position}} - {{ticket.subject}}<input type="button" value="{{ticket.id}}" class="btn-end"></li>
+{% endif %}
+{%endfor%}

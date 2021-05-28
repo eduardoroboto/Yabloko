@@ -1,10 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
+    <meta charset="UTF-8">
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <title>{% block title %}Home{% endblock %}</title>
+
+
 </head>
 <body>
-$END$
+
+<h3>{{error}}</h3>
+
+{% block content %} {% endblock %}
+
 </body>
+
+{%block script%} {%endblock%}
+
+
 </html>

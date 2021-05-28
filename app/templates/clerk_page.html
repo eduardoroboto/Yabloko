@@ -1,10 +1,111 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{%extends "base.html" %}
+
+{% block title %} Clerk {{name}} {% endblock %}
+
+{% block content %}
+
+<h1>{{name}}</h1>
+
+<h4>Posição em relação a maquina de senhas {{position}}</h4>
+<h4>Id: {{id}}</h4>
+<h4>Assuntos</h4>
+
+<ul>
+    {% for subject in subjects %}
+    <li>{{subject}}</li>
+    {% endfor %}
+</ul>
+
+<h3>Fila</h3>
+<ul id="list">
+
+
+</ul>
+
+<h3>Sendo atendido</h3>
+
+<ul id="atendido">
+
+</ul>
+
+{% endblock %}
+
+{% block script %}
+<script>
+
+    function get_list_no_date() {
+        let subjects = JSON.parse('{{ subjects | tojson }}');
+        axios({
+            method: 'get',
+            url: `/main/ticket_list/${subjects}`,
+        })
+            .then(function (response) {
+                let ul = document.getElementById("list");
+                ul.innerHTML = response.data;
+                let buttons = document.querySelectorAll(".btn");
+                buttons.forEach(button => button.addEventListener('click', set_called_date_and_clerk(button.value)),)
+
+            });
+    }
+
+    function get_list_with_date() {
+        let identificador = JSON.parse('{{ id | tojson }}')
+        axios({
+            method: 'get',
+            url: `/main/ticket_list_by_clerk/${identificador}`,
+        })
+            .then(function (response) {
+                let ul = document.getElementById("atendido");
+                ul.innerHTML = response.data;
+                let buttons = document.querySelectorAll(".btn-end");
+                buttons.forEach(button => button.addEventListener('click', set_end_date(button.value)),)
+
+            });
+    }
+
+    function set_called_date_and_clerk(identificador) {
+        return function () {
+// Make a request for a user with a given ID
+            axios.get(`/ticket/start/${identificador}`)
+                .then(function (response) {
+                    console.log(response);
+                })
+                .catch(function (error) {
+                    // handle error
+                    console.log(error);
+                });
+
+            axios.post('/history/adicionar', {
+                clerk_id: JSON.parse('{{ id | tojson }}'),
+                ticket_id: identificador
+            })
+                .then(function (response) {
+                    console.log(response);
+                })
+                .catch(function (error) {
+                    console.log(error);
+                });
+
+        };
+    };
+
+    function set_end_date(value) {
+        return function () {
+// Make a request for a user with a given ID
+            axios.get(`/ticket/end/${value}`)
+                .then(function (response) {
+                    console.log(response);
+                })
+                .catch(function (error) {
+                    // handle error
+                    console.log(error);
+                });
+
+        }
+    };
+
+    setInterval(get_list_no_date, 500);
+    setInterval(get_list_with_date, 500);
+
+</script>
+{% endblock %}
