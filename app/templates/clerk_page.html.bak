@@ -1,0 +1,118 @@
+{%extends "base.html" %}
+
+{% block title %} Clerk {{name}} {% endblock %}
+
+{% block content %}
+
+<h1>{{name}}</h1>
+
+<h4>Numero {{position}}</h4>
+<h4>Assuntos</h4>
+
+<ul>
+    {% for subject in subjects %}
+    <li>{{subject}}</li>
+    {% endfor %}
+</ul>
+
+<h3>Fila</h3>
+<ul id="list">
+
+
+</ul>
+{% endblock %}
+
+{% block script %}
+<script>
+
+    function add_ticket_to_ul(data) {
+        let ul = document.getElementById("list")
+        let li = document.createElement("li");
+        let input = document.createElement("input");
+        input.value = data.id;
+        input.type = 'button';
+        input.addEventListener("click", ticket_add_date_called(data.id));
+        li.innerHTML = `N°${data.position}, ${data.subject}`;
+        li.className = "ticket"
+        li.appendChild(input)
+        ul.appendChild(li);
+    }
+
+    function update_tickets_on_ul() {
+        let lis = document.getElementsByClassName("ticket");
+        let ul = document.getElementById("list")
+
+        axios.get("/ticket/mostrar").then(function (result) {
+            //result.data
+            for (let x = 0; x < result.data.length; x++) {
+                if (result.data[x].date_called != null) {
+                    for (let i = 0; i < lis.length; i++) {
+                        if (lis[i].getElementsByTagName('input')[0].value == result.data[x].id) {
+                            ul.removeChild(lis[i])
+                        }
+
+                    }
+
+                }
+            }
+            for (let x = 0; x < result.data.length; x++) {
+                for (let i = 0; i < lis.length; i++) {
+                    if(result.data[x].date_called == null ){
+                         if (lis[i].getElementsByTagName('input')[0].value == result.data[x].id) {
+                            continueticket_list.html
+                        } else {
+                             add_ticket_to_ul(result.data[x]);
+                             console.log(result.data[x].id);
+                    }
+                    }
+
+                }
+
+            }
+
+
+        });
+
+    };
+
+
+    function ticket_add_date_called(identificador) {
+        return function () {
+            axios.get(`/ticket/start/${identificador}`).then(function (result) {
+                    console.log(result)
+                }
+            ).catch(function (error) {
+                console.log(error)
+            });
+        }
+    };
+
+    function ticket_add_date_end(identificador) {
+        return function () {
+            axios.get(`/ticket/end/${identificador}`).then(function (result) {
+                    console.log(result)
+                }
+            )
+        }
+    };
+
+    axios.get("/ticket/mostrar").then(function (result) {
+        result.data.forEach(data => {
+            if (data.date_called == null) {
+                add_ticket_to_ul(data)
+            }
+        });
+    });
+
+    //update_tickets_on_ul()
+
+    setInterval(update_tickets_on_ul, 5000);
+
+
+    //function oneSecondFunction() {
+    //    update_tickets_on_ul();
+    // };
+
+
+</script>
+{% endblock %}
