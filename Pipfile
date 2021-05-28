@@ -15,6 +15,7 @@ requests = "*"
 ipdb = "*"
 coverage = "*"
 pytest = "*"
+selenium = "*"
 
 [requires]
 python_version = "3.9"
