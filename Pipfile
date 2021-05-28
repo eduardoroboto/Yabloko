@@ -16,6 +16,7 @@ ipdb = "*"
 coverage = "*"
 pytest = "*"
 selenium = "*"
+pytest-flask = "*"
 
 [requires]
 python_version = "3.9"
