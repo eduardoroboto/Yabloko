@@ -43,7 +43,7 @@ def main():
 
 @fe_clerk.route("/main/ticket_list/<subjects>")
 def make_complete_list(subjects):
-    list_subject = subjects.split("/n")
+    list_subject = subjects
     result = Ticket.query.all()
     tickets = [ticket for ticket in result if ticket.subject in list_subject]
     return render_template("ticket_list.html",tickets=tickets)
